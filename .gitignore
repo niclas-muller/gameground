@@ -1,0 +1,4 @@
+venv/
+*.pyc
+*.json
+gameground/theme/static_src/node_modules/
