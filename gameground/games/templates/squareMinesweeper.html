@@ -1,0 +1,14 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}
+Square Minesweeper
+{% endblock %}
+
+{% block content %}
+
+<h1 class="text-6xl text-center text-white p-2"> Square Minesweeper </h1>
+<div id="sq_mw_cnvs" class="grid grid-cols-12 bg-white w-3/4 m-auto"> </div>
+<script src="{% static 'squareMinesweeper.js' %}"> </script>
+
+{% endblock %}

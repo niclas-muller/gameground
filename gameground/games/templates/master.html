@@ -12,12 +12,13 @@
 		{% tailwind_css %}
     </head>
 
-    <body class = "bg-zinc-600 font-serif">
+    <body class = "bg-zinc-600 font-mono">
         <div class="flex flex-row justify-evenly bg-white p-2"> 
-            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300"> Game 1 </a>
-            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300"> Game 2 </a>
-            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300"> Game 3 </a>
-            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300"> Game 4 </a>
+            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300 shadow-lg" href="/"> Main </a>
+            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300 shadow-lg" href="/squareMinesweeper"> Square Minesweeper </a>
+            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300 shadow-lg"> Game 2 </a>
+            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300 shadow-lg"> Game 3 </a>
+            <a class="border-4 border-zinc-600 rounded-md p-2 hover:bg-sky-300 hover:text-white hover:cursor-pointer transition duration-300 shadow-lg"> Game 4 </a>
         </div>
         {% block content %}
         {% endblock %}
