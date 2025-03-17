@@ -1,0 +1,5 @@
+Following steps need to be taken to run the server:
+1) Activate three venvs using source venv/bin/activate
+2) Start tailwind watcher using python manage.py tailwind start 
+3) Start livereloar using python manage.py livereload
+4) Start server using python manage.py runserver
