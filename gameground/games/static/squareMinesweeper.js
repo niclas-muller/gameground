@@ -1,5 +1,38 @@
+/*
+ * Autofill all zeros
+ * Add counter of bombs - rightclicked
+ */
+
+
 const dim = 12;
 const canvas = document.getElementById("sq_mw_cnvs");
+
+document.body.addEventListener("contextmenu", function(evt) {evt.preventDefault(); return false;});
+
+function mapClickEvents(element, leftClickAction, rightClickAction) {
+
+    function onMouseDown(click) {
+        if (click.which == 1) {leftClickAction();}
+        else if (click.which == 3) {rightClickAction();}
+    }
+
+    element.addEventListener('mousedown', onMouseDown);
+}
+
+const clickedClassNames = [
+    "text-blue-100 bg-blue-100 text-center border-2 border-blue-100 selection:text-blue-100",
+    "bg-blue-200 text-center border-2 border-blue-200 selection:text-black",
+    "bg-blue-300 text-center border-2 border-blue-300 selection:text-black",
+    "bg-blue-400 text-center border-2 border-blue-400 selection:text-black",
+    "bg-blue-500 text-center border-2 border-blue-500 selection:text-black",
+    "bg-blue-600 text-center border-2 border-blue-600 selection:text-black",
+    "bg-blue-700 text-center border-2 border-blue-700 selection:text-black",
+    "bg-blue-800 text-center border-2 border-blue-800 selection:text-black",
+    "bg-blue-900 text-center border-2 border-blue-900 selection:text-black"
+]
+
+coveredClassName = "text-white text-center border-2 hover:border-yellow-600 hover:cursor-pointer selection:text-white";
+markedClassName = "text-white bg-zinc-900 text-center selection:text-white";
 
 class mwField {
 
@@ -7,13 +40,14 @@ class mwField {
         this.x = x;
         this.y = y;
         this.mw = mw;
+
         this.bomb = false;
-        this.numOfAdjBombs = 0;
         this.hasBeenClicked = false;
+        this.numOfAdjBombs = 0;
 
         let field = document.createElement("a");
         field.innerHTML = "?";
-        field.className = "text-center border border-black hover:bg-yellow-300 hover:cursor-pointer";
+        field.className = coveredClassName;
         field.onclick = () => {mw.processFirstClick(this.x,this.y);}
         this.field = field;
 
@@ -22,10 +56,26 @@ class mwField {
 
     placeBomb() {
         this.bomb = true;
-        this.field.onclick = () => {
-            alert("You have lost!");
-            window.location.reload();
+
+        let leftClickAction = () => {
+            if (!(this.field.innerHTML == "X")) {
+                alert("You lost!");
+                window.location.reload();
+            }
         }
+
+        let rightClickAction = () => {
+            if (this.field.innerHTML == "?") {
+                this.field.innerHTML = "X";
+                this.field.className = markedClassName;
+            }
+            else if (this.field.innerHTML == "X") {
+                this.field.innerHTML = "?";
+                this.field.className = coveredClassName;
+            }
+        }
+
+        mapClickEvents(this.field, leftClickAction, rightClickAction);
     }
 
     countAdjBombs() {
@@ -107,44 +157,30 @@ class mwField {
     }
 
     changeOnclick() {
-        if (!(this.bomb)) {
-            this.field.onclick = () => {
-                this.field.innerHTML = this.numOfAdjBombs;
-                if (!(this.hasBeenClicked)) {
-                    this.mw.incAndEvalPoints();
-                    this.hasBeenClicked = true;
-                }
-                switch(this.numOfAdjBombs) {
-                    case 0:
-                        this.field.className = "bg-blue-100 text-center";
-                        break;
-                    case 1:
-                        this.field.className = "bg-blue-200 text-center";
-                        break;
-                    case 2:
-                        this.field.className = "bg-blue-300 text-center";
-                        break;
-                    case 3:
-                        this.field.className = "bg-blue-400 text-center";
-                        break;
-                    case 4:
-                        this.field.className = "bg-blue-500 text-center";
-                        break;
-                    case 5:
-                        this.field.className = "bg-blue-600 text-center";
-                        break;
-                    case 6:
-                        this.field.className = "bg-blue-700 text-center";
-                        break;
-                    case 7:
-                        this.field.className = "bg-blue-800 text-center";
-                        break;
-                    case 8:
-                        this.field.className = "bg-blue-900 text-center";
-                        break;
-                }
+
+        this.field.onclick = () => {};
+
+        let leftClickAction = () => {
+            this.field.innerHTML = this.numOfAdjBombs;
+            this.field.className = clickedClassNames[this.numOfAdjBombs];
+            if (!(this.hasBeenClicked)) {
+                this.mw.incAndEvalPoints();
+                this.hasBeenClicked = true;
             }
         }
+
+        let rightClickAction = () => {
+            if (this.field.innerHTML == "?") {
+                this.field.innerHTML = "X";
+                this.field.className = markedClassName;
+            }
+            else if (this.field.innerHTML == "X") {
+                this.field.innerHTML = "?";
+                this.field.className = coveredClassName;
+            }
+        }
+
+        mapClickEvents(this.field, leftClickAction, rightClickAction);
     }
 }
 
@@ -173,13 +209,19 @@ class sqmw {
     }
 
     processFirstClick(x_0,y_0) {
+
         this.buryBombs(x_0,y_0);
+
         for (let x = 0; x < this.dim; x++) {
             for (let y = 0; y < this.dim; y++) {
-                this.fields[x][y].countAdjBombs();
-                this.fields[x][y].changeOnclick();
+                let tmpField = this.fields[x][y];
+                if (!(tmpField.bomb)) {
+                    tmpField.countAdjBombs();
+                    tmpField.changeOnclick();
+                }
             }
         }
+
         this.uncover(x_0,y_0);
         for (let x = 0; x < this.dim; x++) {
             for (let y = 0; y < this.dim; y++) {
@@ -207,35 +249,7 @@ class sqmw {
             tmpField.field.innerHTML = tmpField.numOfAdjBombs;
             tmpField.hasBeenClicked = true;
             this.incAndEvalPoints();
-            switch(tmpField.numOfAdjBombs) {
-                case 0:
-                    tmpField.field.className = "bg-blue-100 text-center";
-                    break;
-                case 1:
-                    tmpField.field.className = "bg-blue-200 text-center";
-                    break;
-                case 2:
-                    tmpField.field.className = "bg-blue-300 text-center";
-                    break;
-                case 3:
-                    tmpField.field.className = "bg-blue-400 text-center";
-                    break;
-                case 4:
-                    tmpField.field.className = "bg-blue-500 text-center";
-                    break;
-                case 5:
-                    tmpField.field.className = "bg-blue-600 text-center";
-                    break;
-                case 6:
-                    tmpField.field.className = "bg-blue-700 text-center";
-                    break;
-                case 7:
-                    tmpField.field.className = "bg-blue-800 text-center";
-                    break;
-                case 8:
-                    tmpField.field.className = "bg-blue-900 text-center";
-                    break;
-            }
+            tmpField.field.className = clickedClassNames[tmpField.numOfAdjBombs];
         }
 
         /* uncover top */
