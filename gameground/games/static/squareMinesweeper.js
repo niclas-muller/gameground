@@ -1,14 +1,12 @@
-/*
- * Autofill all zeros
- * Add counter of bombs - rightclicked
- */
-
-
+/* Global constants */
 const dim = 12;
 const canvas = document.getElementById("sq_mw_cnvs");
+const pointDisplay = document.getElementById("pointDisplay");
 
+/* Prevent showing menu when right-clicking */
 document.body.addEventListener("contextmenu", function(evt) {evt.preventDefault(); return false;});
 
+/* Map onclick actions to element differentiated by left-/rightclick */
 function mapClickEvents(element, leftClickAction, rightClickAction) {
 
     function onMouseDown(click) {
@@ -19,6 +17,7 @@ function mapClickEvents(element, leftClickAction, rightClickAction) {
     element.addEventListener('mousedown', onMouseDown);
 }
 
+/* Tailwind CSS definitions */
 const clickedClassNames = [
     "text-blue-100 bg-blue-100 text-center border-2 border-blue-100 selection:text-blue-100",
     "bg-blue-200 text-center border-2 border-blue-200 selection:text-black",
@@ -33,6 +32,8 @@ const clickedClassNames = [
 
 coveredClassName = "text-white text-center border-2 hover:border-yellow-600 hover:cursor-pointer selection:text-white";
 markedClassName = "text-white bg-zinc-900 text-center selection:text-white";
+
+/* Main functionalities */
 
 class mwField {
 
@@ -68,10 +69,14 @@ class mwField {
             if (this.field.innerHTML == "?") {
                 this.field.innerHTML = "X";
                 this.field.className = markedClassName;
+                this.mw.bombsMarked++;
+                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
             else if (this.field.innerHTML == "X") {
                 this.field.innerHTML = "?";
                 this.field.className = coveredClassName;
+                this.mw.bombsMarked--;
+                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
         }
 
@@ -173,10 +178,14 @@ class mwField {
             if (this.field.innerHTML == "?") {
                 this.field.innerHTML = "X";
                 this.field.className = markedClassName;
+                this.mw.bombsMarked++;
+                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
             else if (this.field.innerHTML == "X") {
                 this.field.innerHTML = "?";
                 this.field.className = coveredClassName;
+                this.mw.bombsMarked--;
+                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
         }
 
@@ -192,6 +201,8 @@ class sqmw {
         this.points = 0;
         this.maxBombs = Math.floor(this.dim*this.dim/4);
         this.pointsToWin = this.dim*this.dim - this.maxBombs;
+        this.bombsMarked = 0;
+        pointDisplay.innerHTML = this.maxBombs - this.bombsMarked;
         this.buildGrid();
     }
 
@@ -321,7 +332,7 @@ class sqmw {
         this.points++;
         console.log(this.points+"/"+this.pointsToWin);
         if (this.points == this.dim*this.dim - this.maxBombs) {
-            alert("You have won!");
+            alert("Congratulations, you have won!");
             window.location.reload();
         }
     }
