@@ -1,7 +1,7 @@
 /* Global constants */
 const dim = 12;
 const canvas = document.getElementById("sq_mw_cnvs");
-const pointDisplay = document.getElementById("pointDisplay");
+const scoreDisplay = document.getElementById("pointDisplay");
 
 /* Prevent showing menu when right-clicking */
 document.body.addEventListener("contextmenu", function(evt) {evt.preventDefault(); return false;});
@@ -30,8 +30,8 @@ const clickedClassNames = [
     "bg-blue-900 text-center border-2 border-blue-900 selection:text-black"
 ]
 
-coveredClassName = "text-white text-center border-2 hover:border-yellow-600 hover:cursor-pointer selection:text-white";
-markedClassName = "text-white bg-zinc-900 text-center selection:text-white";
+let coveredClassName = "text-white text-center border-2 hover:border-yellow-600 hover:cursor-pointer selection:text-white";
+let markedClassName = "text-white bg-zinc-900 text-center selection:text-white";
 
 /* Main functionalities */
 
@@ -55,6 +55,22 @@ class mwField {
         mw.canvas.appendChild(field);
     }
 
+    upper() {
+        return this.mw.fields[this.x - 1][this.y]
+    }
+
+    lower() {
+        return this.mw.fields[this.x + 1][this.y]
+    }
+
+    left() {
+        return this.mw.fields[this.x][this.y - 1]
+    }
+
+    right() {
+        return this.mw.fields[this.x][this.y + 1]
+    }
+
     placeBomb() {
         this.bomb = true;
 
@@ -70,13 +86,13 @@ class mwField {
                 this.field.innerHTML = "X";
                 this.field.className = markedClassName;
                 this.mw.bombsMarked++;
-                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
+                scoreDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
             else if (this.field.innerHTML == "X") {
                 this.field.innerHTML = "?";
                 this.field.className = coveredClassName;
                 this.mw.bombsMarked--;
-                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
+                scoreDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
         }
 
@@ -85,80 +101,38 @@ class mwField {
 
     countAdjBombs() {
 
-        /* upper left corner */
-        if (this.x == 0 && this.y == 0) {
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
+        if (this.x > 0) {
+            this.numOfAdjBombs += this.upper().bomb
         }
 
-        /* top border */
-        else if (this.x == 0 && this.y > 0 && this.y < this.mw.dim - 1) {
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
+        if (this.x > 0 && this.y < this.mw.dim - 1) {
+            this.numOfAdjBombs += this.upper().right().bomb
         }
 
-        /* upper right corner */
-        else if (this.x == 0 && this.y == this.mw.dim - 1) {
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
+        if (this.y < this.mw.dim - 1) {
+            this.numOfAdjBombs += this.right().bomb
         }
 
-        /* right border */
-        else if (this.x > 0 && this.x < this.mw.dim - 1 && this.y == this.mw.dim - 1) {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y-1].bomb) {this.numOfAdjBombs++;}
+        if (this.x < this.mw.dim - 1 && this.y < this.mw.dim - 1) {
+            this.numOfAdjBombs += this.lower().right().bomb
         }
 
-        /* lower right corner */
-        else if (this.x == this.mw.dim - 1 && this.y == this.mw.dim - 1) {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y-1].bomb) {this.numOfAdjBombs++;}
+        if (this.x < this.mw.dim - 1) {
+            this.numOfAdjBombs += this.lower().bomb
         }
 
-        /* bot border */
-        else if (this.x == this.mw.dim - 1 && this.y > 0 && this.y < this.mw.dim - 1) {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y-1].bomb) {this.numOfAdjBombs++;}
+        if (this.x < this.mw.dim - 1 && this.y > 0) {
+            this.numOfAdjBombs += this.lower().left().bomb
         }
 
-        /* lower left corner */
-        else if (this.x == this.mw.dim - 1 && this.y == 0) {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
+        if (this.y > 0) {
+            this.numOfAdjBombs += this.left().bomb
         }
 
-        /* left border */
-        else if (this.x > 0 && this.x < this.mw.dim - 1 && this.y == 0) {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
+        if (this.x > 0 && this.y > 0) {
+            this.numOfAdjBombs += this.upper().left().bomb
         }
 
-        else {
-            if (this.mw.fields[this.x-1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y+0].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+1][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x+0][this.y-1].bomb) {this.numOfAdjBombs++;}
-            if (this.mw.fields[this.x-1][this.y-1].bomb) {this.numOfAdjBombs++;}
-        }
     }
 
     changeOnclick() {
@@ -179,13 +153,13 @@ class mwField {
                 this.field.innerHTML = "X";
                 this.field.className = markedClassName;
                 this.mw.bombsMarked++;
-                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
+                scoreDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
             else if (this.field.innerHTML == "X") {
                 this.field.innerHTML = "?";
                 this.field.className = coveredClassName;
                 this.mw.bombsMarked--;
-                pointDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
+                scoreDisplay.innerHTML = this.mw.maxBombs - this.mw.bombsMarked;
             }
         }
 
@@ -202,7 +176,7 @@ class sqmw {
         this.maxBombs = Math.floor(this.dim*this.dim/4);
         this.pointsToWin = this.dim*this.dim - this.maxBombs;
         this.bombsMarked = 0;
-        pointDisplay.innerHTML = this.maxBombs - this.bombsMarked;
+        scoreDisplay.innerHTML = this.maxBombs - this.bombsMarked;
         this.buildGrid();
     }
 
@@ -234,11 +208,6 @@ class sqmw {
         }
 
         this.uncover(x_0,y_0);
-        for (let x = 0; x < this.dim; x++) {
-            for (let y = 0; y < this.dim; y++) {
-                this.fields[x][y].field.onclick = function() {this.uncover(x,y);}
-            }
-        }
     }
 
     buryBombs(x,y) {
@@ -330,7 +299,6 @@ class sqmw {
 
     incAndEvalPoints() {
         this.points++;
-        console.log(this.points+"/"+this.pointsToWin);
         if (this.points == this.dim*this.dim - this.maxBombs) {
             alert("Congratulations, you have won!");
             window.location.reload();
